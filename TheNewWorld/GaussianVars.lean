@@ -38,3 +38,4 @@ lemma gaussianMeasure_isProbabilityMeasure (μ : ℝ) (σ : ℝ)(hσ: 0 < σ) :
     intro x
     simp only [Set.mem_setOf_eq]
     apply mul_nonneg (sqrt_nonneg _) (le_of_lt (exp_pos _))
+
