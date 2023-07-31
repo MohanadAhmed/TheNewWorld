@@ -1,15 +1,12 @@
 import Mathlib
--- import Mathlib.Data.Real.Pi.Bounds
 
 open MeasureTheory Real
 
 noncomputable def fμσ (μ : ℝ) (σ : ℝ) := fun x => ENNReal.ofReal (Real.sqrt (π/(2 / (2*σ^2)))⁻¹ * Real.exp (-2*(x)^2 / (2*σ^2)))
--- noncomputable def fμσ (μ : ℝ) (σ : ℝ) := fun x => ENNReal.ofReal (Real.sqrt (π/2)⁻¹ * Real.exp (-2*(x)^2))
 
 noncomputable def gaussianMeasure (μ : ℝ) (σ : ℝ) : MeasureTheory.Measure ℝ := by
   apply MeasureTheory.Measure.withDensity volume (fμσ μ σ)
 
--- set_option pp.all true
 lemma gaussianMeasure_isProbabilityMeasure (μ : ℝ) (σ : ℝ)(hσ: 0 < σ) : 
     IsProbabilityMeasure (gaussianMeasure μ σ) := by
   unfold gaussianMeasure
@@ -18,7 +15,8 @@ lemma gaussianMeasure_isProbabilityMeasure (μ : ℝ) (σ : ℝ)(hσ: 0 < σ) :
   unfold fμσ
   simp only [Real.rpow_two]
 
-  rw [← ofReal_integral_eq_lintegral_ofReal]
+  rw [← ofReal_integral_eq_lintegral_ofReal] -- Generates three side goals
+   -- Integral of function = 1
   · rw [← ENNReal.ofReal_one, ENNReal.ofReal_eq_ofReal_iff _ zero_le_one]
     simp_rw [←smul_eq_mul, integral_smul, smul_eq_mul, mul_div_right_comm, neg_div]
     rw [ integral_gaussian, ← sqrt_mul, sqrt_eq_one, inv_mul_cancel]
@@ -29,33 +27,14 @@ lemma gaussianMeasure_isProbabilityMeasure (μ : ℝ) (σ : ℝ)(hσ: 0 < σ) :
     apply integral_nonneg
     · intro x
       simpa [Pi.zero_apply] using (mul_nonneg (sqrt_nonneg _) (le_of_lt (exp_pos _)))
-  apply Integrable.const_mul
-  simp_rw [mul_div_right_comm, neg_div]
-  apply integrable_exp_neg_mul_sq (div_pos two_pos (mul_pos two_pos (pow_pos hσ _)))
-
+  -- Lebesgue Integral is finite
+  · apply Integrable.const_mul
+    simp_rw [mul_div_right_comm, neg_div]
+    apply integrable_exp_neg_mul_sq (div_pos two_pos (mul_pos two_pos (pow_pos hσ _)))
+  -- Something about measurability!!!
   · unfold Filter.EventuallyLE Filter.Eventually
     dsimp only [Pi.zero_apply]
     apply Filter.univ_mem'
     intro x
     simp only [Set.mem_setOf_eq]
     apply mul_nonneg (sqrt_nonneg _) (le_of_lt (exp_pos _))
-    
-    
-    
-    
-  --   apply div_ne_zero pi_ne_zero two_ne_zero
-  --   simp only [inv_div, le_div_iff pi_pos, zero_mul, zero_le_two]
-  --   apply integral_nonneg
-  --   · intro x
-  --     simpa [Pi.zero_apply] using (mul_nonneg (sqrt_nonneg _) (le_of_lt (exp_pos _)))
-
-  -- · apply Integrable.const_mul
-    
-
-  -- · unfold Filter.EventuallyLE Filter.Eventually
-  --   dsimp only [Pi.zero_apply]
-  --   apply Filter.univ_mem'
-  --   intro x
-  --   simp only [Set.mem_setOf_eq]
-  --   apply mul_nonneg (sqrt_nonneg _) (le_of_lt (exp_pos _))
-  
